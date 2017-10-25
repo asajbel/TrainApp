@@ -9,6 +9,44 @@
 </head>
 
 <body>
+  <!-- Modal -->
+  <div class="modal fade" id="updateModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="updateModalLabel">Modal title</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="updateTrain" name="updateTrain">
+            <div class="form-group">
+              <label for="trainName">Name</label>
+              <input type="text" class="form-control" id="trainName" name="trainName" placeholder="New Train Name">
+            </div>
+            <div class="form-group">
+              <label for="trainDest">Destination</label>
+              <input type="text" class="form-control" id="trainDest" name="trainDest" placeholder="New Train Destination">
+            </div>
+            <div class="form-group">
+              <label for="trainTime">First Start Time</label>
+              <input type="time" class="form-control" id="trainTime" name="trainTime" placeholder="HH:MM">
+              <small id="timeHelp" class="form-text text-muted"></small>
+            </div>
+            <div class="form-group">
+              <label for="trainFreq">Frequency (min)</label>
+              <input type="number" class="form-control" id="trainFreq" name="trainFreq" placeholder="Minutes">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button id="btnUpdate" type="submit" class="btn btn-primary" form="updateTrain">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="jumbotron jumbotron-fluid">
     <div class="container">
       <h1 class="display-3">Train Times a Timing</h1>
@@ -29,7 +67,7 @@
               <th scope="col">Frequency (min)</th>
               <th scope="col">Next Arrival</th>
               <th scope="col">Minutes Away</th>
-              <th scope="col">Remove</th>
+              <th scope="col"></th>
             </tr>
           </thead>
           <tbody id="timeTrains">
@@ -67,6 +105,8 @@
     </div>
   </div>
   <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
   <script src="https://www.gstatic.com/firebasejs/4.6.0/firebase.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.1/moment.js"></script>
   <script type="text/javascript" src="assets/javascript/app.js"></script>
