@@ -84,20 +84,20 @@
         <form id="addTrain">
           <div class="form-group">
             <label for="trainName">Name</label>
-            <input type="text" class="form-control" id="trainName" name="trainName" placeholder="New Train Name">
+            <input type="text" class="form-control" id="trainName" name="trainName" placeholder="New Train Name" required>
           </div>
           <div class="form-group">
             <label for="trainDest">Destination</label>
-            <input type="text" class="form-control" id="trainDest" name="trainDest" placeholder="New Train Destination">
+            <input type="text" class="form-control" id="trainDest" name="trainDest" placeholder="New Train Destination" required>
           </div>
           <div class="form-group">
             <label for="trainTime">First Start Time</label>
-            <input type="time" class="form-control" id="trainTime" name="trainTime" placeholder="HH:MM">
+            <input type="time" class="form-control" id="trainTime" name="trainTime" placeholder="HH:MM" required>
             <small id="timeHelp" class="form-text text-muted"></small>
           </div>
           <div class="form-group">
             <label for="trainFreq">Frequency (min)</label>
-            <input type="number" class="form-control" id="trainFreq" name="trainFreq" placeholder="Minutes">
+            <input type="number" class="form-control" id="trainFreq" name="trainFreq" placeholder="Minutes" required>
           </div>
           <button type="submit" class="btn btn-primary">Submit</button>
         </form>
