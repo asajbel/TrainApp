@@ -1,72 +1,75 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1">
-		<title>Train Time</title>
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
-		<link rel="stylesheet" href="assets/css/style.css">
-	</head>
-	<body>
-		<div class="jumbotron jumbotron-fluid">
-			<div class="container">
-				<h1 class="display-3">Train Times a Timing</h1>
-				<p class="lead">Chugga Chugga Choo Choo</p>
-			</div>
-		</div>
-		<div class="container">
-			<div class="card">
-				<div class="card-header">
-					Train Times
-				</div>
-				<div class="card-body">
-					<table class="table">
-						<thead>
-							<tr>
-								<th scope="col">Name</th>
-								<th scope="col">Destination</th>
-								<th scope="col">Frequency (min)</th>
-								<th scope="col">Next Arrival</th>
-								<th scope="col">Minutes Away</th>
-							</tr>
-						</thead>
-						<tbody id="timeTrains">
-						</tbody>
-					</table>
-				</div>
-			</div>
-			<hr>
-			<div class="card">
-				<div class="card-header">
-					Add Train
-				</div>
-				<div class="card-body">
-					<form id="addTrain">
-						<div class="form-group">
-							<label for="trainName">Name</label>
-							<input type="text" class="form-control" id="trainName" name="trainName" placeholder="New Train Name">
-						</div>
-						<div class="form-group">
-							<label for="trainDest">Destination</label>
-							<input type="text" class="form-control" id="trainDest" name="trainDest" placeholder="New Train Destination">
-						</div>
-						<div class="form-group">
-							<label for="trainTime">First Start Time</label>
-							<input type="time" class="form-control" id="trainTime" name="trainTime" placeholder="HH:MM">
-							<small id="timeHelp" class="form-text text-muted"></small>
-						</div>
-						<div class="form-group">
-							<label for="trainFreq">Frequency (min)</label>
-							<input type="number" class="form-control" id="trainFreq" name="trainFreq" placeholder="Minutes">
-						</div>
-						<button type="submit" class="btn btn-primary">Submit</button>
-					</form>
-				</div>
-			</div>
-		</div>
-		
-		<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
-		<script src="https://www.gstatic.com/firebasejs/4.6.0/firebase.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.1/moment.js"></script>
-		<script type="text/javascript" src="assets/javascript/app.js"></script>
-	</body>
+
+<head>
+  <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1">
+  <title>Train Time</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+
+<body>
+  <div class="jumbotron jumbotron-fluid">
+    <div class="container">
+      <h1 class="display-3">Train Times a Timing</h1>
+      <p class="lead">Chugga Chugga Choo Choo</p>
+    </div>
+  </div>
+  <div class="container">
+    <div class="card">
+      <div class="card-header">
+        Train Times
+      </div>
+      <div class="card-body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Destination</th>
+              <th scope="col">Frequency (min)</th>
+              <th scope="col">Next Arrival</th>
+              <th scope="col">Minutes Away</th>
+              <th scope="col">Remove</th>
+            </tr>
+          </thead>
+          <tbody id="timeTrains">
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <hr>
+    <div class="card">
+      <div class="card-header">
+        Add Train
+      </div>
+      <div class="card-body">
+        <form id="addTrain">
+          <div class="form-group">
+            <label for="trainName">Name</label>
+            <input type="text" class="form-control" id="trainName" name="trainName" placeholder="New Train Name">
+          </div>
+          <div class="form-group">
+            <label for="trainDest">Destination</label>
+            <input type="text" class="form-control" id="trainDest" name="trainDest" placeholder="New Train Destination">
+          </div>
+          <div class="form-group">
+            <label for="trainTime">First Start Time</label>
+            <input type="time" class="form-control" id="trainTime" name="trainTime" placeholder="HH:MM">
+            <small id="timeHelp" class="form-text text-muted"></small>
+          </div>
+          <div class="form-group">
+            <label for="trainFreq">Frequency (min)</label>
+            <input type="number" class="form-control" id="trainFreq" name="trainFreq" placeholder="Minutes">
+          </div>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://www.gstatic.com/firebasejs/4.6.0/firebase.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.1/moment.js"></script>
+  <script type="text/javascript" src="assets/javascript/app.js"></script>
+</body>
+
 </html>

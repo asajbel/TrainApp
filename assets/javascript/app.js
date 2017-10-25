@@ -1,82 +1,102 @@
 $(document).ready(function() {
 
-    // Initialize Firebase
-    var config = {
-        apiKey: "AIzaSyDUtsL3aGb_X7m5fyueXRSiJJeR_XgDEQg",
-        authDomain: "bootcampclass-d491b.firebaseapp.com",
-        databaseURL: "https://bootcampclass-d491b.firebaseio.com",
-        projectId: "bootcampclass-d491b",
-        storageBucket: "bootcampclass-d491b.appspot.com",
-        messagingSenderId: "531440901597"
-    };
-    firebase.initializeApp(config);
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyDUtsL3aGb_X7m5fyueXRSiJJeR_XgDEQg",
+    authDomain: "bootcampclass-d491b.firebaseapp.com",
+    databaseURL: "https://bootcampclass-d491b.firebaseio.com",
+    projectId: "bootcampclass-d491b",
+    storageBucket: "bootcampclass-d491b.appspot.com",
+    messagingSenderId: "531440901597"
+  };
+  firebase.initializeApp(config);
 
-    var database = firebase.database();
-    var trainRef = database.ref("/trains");
+  var database = firebase.database();
+  var trainRef = database.ref("/trains");
 
-    database.ref().on("value", function(snapshot) {
-        console.log(snapshot.val());
-        $("#timeTrains").empty();
-        for (var train in snapshot.val().trains) {
-            addToTable(snapshot.val().trains[train]);
-        }
-    }, function(errorObject) {
-        console.log("Errors handled: " + errorObject.code);
+  trainRef.on("child_added", function(snapshot) {
+    console.log(snapshot.val());
+    addToTable(snapshot.key, snapshot.val());
+    // $("#timeTrains").empty();
+    // for (var train in snapshot.val().trains) {
+    //   addToTable(snapshot.val().trains[train]);
+    // }
+  }, function(errorObject) {
+    console.log("Errors handled: " + errorObject.code);
+  });
+
+  function writeTrainData(name, destination, firstTime, frequency) {
+    trainRef.push({
+      name: name,
+      destination: destination,
+      first: firstTime,
+      frequency: frequency
     });
+  }
 
-    function writeTrainData(name, destination, firstTime, frequency) {
-        // var newTrainKey = trainRef.push().key;
+  function addToTable(key, train) {
+    var row = $("<tr>").attr("id", key).attr("data-start", train.first);
+    var name = $("<th>").attr("scope", "row").text(train.name).attr("data-name", train.name);
+    var dest = $("<td>").text(train.destination).attr("data-dest", train.destination);
+    var freq = $("<td>").text(train.frequency).attr("data-fq", train.frequency);
+    var arrival = $("<td>");
+    var until = $("<td>");
+    var btns = $("<td>");
+    var btnRmv = $("<button>").addClass("remove btn btn-secondary").attr("data-key", key).text("X");
+    var fq = train.frequency;
+    var first = moment(train.first, "HH:mm");
 
-        // trainRef.child(newTrainKey).set({
-        trainRef.push({
-            name: name,
-            destination: destination,
-            first: firstTime,
-            frequency: frequency
-        });
+    while (first.isBefore(moment())) {
+      first.add(train.frequency, 'minutes');
     }
+    arrival.text(first.format("h:mm A")).attr("data-next", first);
+    until.text(first.fromNow());
 
-    function addToTable(train) {
-        var row = $("<tr>");
-        var name = $("<th>").attr("scope", "row").text(train.name);
-        var dest = $("<td>").text(train.destination);
-        var freq = $("<td>").text(train.frequency);
-        var arrival = $("<td>");
-        var until = $("<td>");
-        var fq = train.frequency;
-        var now = moment();
-        var hr = train.first.split(":")[0];
-        var min = train.first.split(":")[1];
-        var first = moment().hour(hr).minute(min);
+    row.append(name).append(dest).append(freq).append(arrival).append(until).append(btns.append(btnRmv));
+    $("#timeTrains").append(row);
+  }
 
-
-        while (first.isBefore(now)) {
-            first.add(train.frequency, 'minutes');
-        }
-        var diff = moment.duration(first.diff(now));
-        arrival.text(first.format("h:mm A"));
-        until.text(Math.floor(diff.asMinutes()));
-        row.append(name).append(dest).append(freq).append(arrival).append(until);
-        $("#timeTrains").append(row);
-    }
-
-    $("#addTrain").on("submit", function getNewTrain(event) {
-        event.preventDefault();
-        var name = event.target.trainName.value.trim();
-        var dest = event.target.trainDest.value.trim();
-        var start = event.target.trainTime.value;
-        var freq = parseInt(event.target.trainFreq.value);
-        writeTrainData(name, dest, start, freq);
-        event.target.reset();
+  $("#addTrain").on("submit", function getNewTrain(event) {
+    event.preventDefault();
+    trainRef.push({
+      name: event.target.trainName.value.trim(),
+      destination: event.target.trainDest.value.trim(),
+      first: event.target.trainTime.value,
+      frequency: parseInt(event.target.trainFreq.value)
     });
+    event.target.reset();
+  });
 
-    var up = 0;
-    function updateTimes() {
-    	firebase.database().ref().update({
-    		update: up
-    	});
-    	up++;
-    }
-    setInterval(updateTimes, 60000);
+  $(document).on("click", ".remove", function removeRow(event) {
+    event.preventDefault();
+    trainRef.child(this.dataset.key).remove();
+    $(this).parent().parent().remove();
+  });
+
+  //Old method to update the times by changing the database when it was using a value event
+  // var up = 0;
+  // function updateTimes() {
+  // 	firebase.database().ref().update({
+  // 		update: up
+  // 	});
+  // 	up++;
+  // }
+  setInterval(updateTimes, 60000);
 
 });
+
+function updateTimes() {
+  var rows = $("#timeTrains").children();
+  for (var i = 0; i < rows.length; i++) {
+    var elements = $(rows[i]).children();
+    var arrival = $(elements[3]);
+    var until = $(elements[4]);
+    var freq = parseInt(elements[2].dataset.fq);
+    var arrive = moment(elements[3].dataset.next, "x");
+    while (arrive.isBefore(moment())) {
+      arrive.add(freq, 'minutes');
+    }
+    arrival.text(arrive.format("h:mm A")).attr("data-next", arrive);
+    until.text(arrive.fromNow());
+  }
+}
