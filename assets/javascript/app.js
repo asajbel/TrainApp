@@ -68,8 +68,11 @@ $(document).ready(function() {
 
   $(document).on("click", ".remove", function removeRow(event) {
     event.preventDefault();
-    trainRef.child(this.dataset.key).remove();
-    $(this).parent().parent().remove();
+    var result = confirm("Are you sure you want to delete this train?");
+    if (result) {
+      trainRef.child(this.dataset.key).remove();
+      $(this).parent().parent().remove();
+    }
   });
 
   $(document).on("click", ".update", function updateRow(event) {
@@ -87,15 +90,6 @@ $(document).ready(function() {
   });
 
   setInterval(updateTimes, 60000);
-
-  function writeTrainData(name, destination, firstTime, frequency) {
-    trainRef.push({
-      name: name,
-      destination: destination,
-      first: firstTime,
-      frequency: frequency
-    });
-  }
 
   function addToTable(key, train) {
     var row = $("<tr>").attr("id", key).attr("data-start", train.first);
