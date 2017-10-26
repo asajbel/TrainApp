@@ -1,3 +1,44 @@
+/**
+ * Function called when clicking the Login/Logout button.
+ */
+// [START buttoncallback]
+function toggleSignIn(event) {
+  event.preventDefault();
+  if (!firebase.auth().currentUser) {
+    // [START createprovider]
+    var provider = new firebase.auth.GoogleAuthProvider();
+    // [END createprovider]
+    // [START addscopes]
+    // provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+    // [END addscopes]
+    // [START signin]
+    firebase.auth().signInWithPopup(provider).catch(function(error) {
+      // Handle Errors here.
+      var errorCode = error.code;
+      var errorMessage = error.message;
+      // The email of the user's account used.
+      var email = error.email;
+      // The firebase.auth.AuthCredential type that was used.
+      var credential = error.credential;
+      // [START_EXCLUDE]
+      if (errorCode === 'auth/account-exists-with-different-credential') {
+        alert('You have already signed up with a different auth provider for that email.');
+        // If you are using multiple auth providers on your app you should handle linking
+        // the user's accounts here.
+      } else {
+        console.error(error);
+      }
+      // [END_EXCLUDE]
+    });
+    // [END signin]
+  } else {
+    // [START signout]
+    firebase.auth().signOut();
+    // [END signout]
+  }
+}
+// [END buttoncallback]
+
 function addToTable(key, train) {
   var row = $("<tr>").attr("id", key).attr("data-start", train.first);
   var name = $("<th>").attr("scope", "row").text(train.name).attr("data-name", train.name);
@@ -12,7 +53,6 @@ function addToTable(key, train) {
 
   arrival.text(next.format("h:mm A")).attr("data-next", next);
   until.text(next.fromNow());
-
   btns.append(btnUpd).append(btnRmv);
   row.append(name).append(dest).append(freq).append(arrival).append(until).append(btns);
   $("#timeTrains").append(row);
@@ -36,14 +76,35 @@ function updateTimes() {
 }
 
 function arrivalTime(freq, first, format = "HH:mm") {
-	var arrive = moment(first, format);
-	if (arrive.isBefore(moment())) {
-		var diff = moment().diff(moment(arrive), "minutes");
-		var till = freq - (diff % freq);
-		arrive = moment().add(till, "minutes");
-	}
-	return arrive;
+  var arrive = moment(first, format);
+  if (arrive.isBefore(moment())) {
+    var diff = moment().diff(moment(arrive), "minutes");
+    var till = freq - (diff % freq);
+    arrive = moment().add(till, "minutes");
+  }
+  return arrive;
 }
+
+function newTrain(snapshot) {
+  console.log(snapshot.val());
+  addToTable(snapshot.key, snapshot.val());
+}
+
+function changeTrain(snapshot) {
+  console.log(snapshot.val());
+  var elements = $("#" + snapshot.key).children();
+  $(elements[0]).text(snapshot.val().name).attr("data-name", snapshot.val().name);
+  $(elements[1]).text(snapshot.val().destination).attr("data-dest", snapshot.val().destination);
+  $(elements[2]).text(snapshot.val().frequency).attr("data-fq", snapshot.val().frequency);
+  var arrival = elements[3];
+  var until = elements[4];
+  var next = arrivalTime(snapshot.val().frequency, snapshot.val().first)
+
+  $(elements[3]).text(next.format("h:mm A")).attr("data-next", next);
+  $(elements[4]).text(next.fromNow());
+
+}
+
 
 $(document).ready(function initialize() {
   // Initialize Firebase
@@ -60,29 +121,68 @@ $(document).ready(function initialize() {
   var database = firebase.database();
   var trainRef = database.ref("/trains");
 
-  trainRef.on("child_added", function newTrain(snapshot) {
-    console.log(snapshot.val());
-    addToTable(snapshot.key, snapshot.val());
-  }, function(errorObject) {
-    console.log("Errors handled: " + errorObject.code);
+  // Listening for auth state changes.
+  // [START authstatelistener]
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
+      // User is signed in.
+      var displayName = user.displayName;
+      var email = user.email;
+      var emailVerified = user.emailVerified;
+      var photoURL = user.photoURL;
+      var isAnonymous = user.isAnonymous;
+      var uid = user.uid;
+      var providerData = user.providerData;
+      // [START_EXCLUDE]
+      $("#signInText").text('Sign out');
+      trainRef = database.ref("/trains" + uid);
+      $("#timeTrains").empty();
+      trainRef.off("child_added");
+      trainRef.off("child_changed");
+      trainRef.on("child_added", newTrain, function(errorObject) {
+        console.log("Errors handled: " + errorObject.code);
+      });
+
+      trainRef.on("child_changed", changeTrain, function(errorObject) {
+        console.log("Errors handled: " + errorObject.code);
+      });
+      // [END_EXCLUDE]
+    } else {
+      // User is signed out.
+      // [START_EXCLUDE]
+      $("#signInText").text('Sign In');
+      trainRef = database.ref("/trains");
+      switchTrains();
+      // [END_EXCLUDE]
+    }
+    // [START_EXCLUDE]
+    // [END_EXCLUDE]
   });
+  // [END authstatelistener]
 
-  trainRef.on("child_changed", function changeTrain(snapshot) {
-    console.log(snapshot.val());
-    var elements = $("#" + snapshot.key).children();
-    $(elements[0]).text(snapshot.val().name).attr("data-name", snapshot.val().name);
-    $(elements[1]).text(snapshot.val().destination).attr("data-dest", snapshot.val().destination);
-    $(elements[2]).text(snapshot.val().frequency).attr("data-fq", snapshot.val().frequency);
-    var arrival = elements[3];
-    var until = elements[4];
-		var next = arrivalTime(snapshot.val().frequency, snapshot.val().first)
+	function switchTrains(){
+      $("#timeTrains").empty();
+      trainRef.off("child_added");
+      trainRef.off("child_changed");
+      trainRef.on("child_added", newTrain, function(errorObject) {
+        console.log("Errors handled: " + errorObject.code);
+      });
 
-    $(elements[3]).text(next.format("h:mm A")).attr("data-next", next);
-    $(elements[4]).text(next.fromNow());
+      trainRef.on("child_changed", changeTrain, function(errorObject) {
+        console.log("Errors handled: " + errorObject.code);
+      });
+	}
 
-  }, function(errorObject) {
-    console.log("Errors handled: " + errorObject.code);
-  });
+  $("#signIn").on("click", toggleSignIn);
+
+
+  // trainRef.on("child_added", newTrain, function(errorObject) {
+  //   console.log("Errors handled: " + errorObject.code);
+  // });
+
+  // trainRef.on("child_changed", changeTrain, function(errorObject) {
+  //   console.log("Errors handled: " + errorObject.code);
+  // });
 
   $("#addTrain").on("submit", function getNewTrain(event) {
     event.preventDefault();
@@ -98,7 +198,7 @@ $(document).ready(function initialize() {
   $("#updateTrain").on("submit", function updateTrain(event) {
     event.preventDefault();
     var key = event.target.dataset.key;
-    database.ref("trains/" + key).update({
+    trainRef.child(event.target.dataset.key).update({
       name: event.target.trainName.value.trim(),
       destination: event.target.trainDest.value.trim(),
       first: event.target.trainTime.value,
@@ -118,7 +218,7 @@ $(document).ready(function initialize() {
 
   $(document).on("click", ".update", function updateRow(event) {
     event.preventDefault();
-    database.ref("trains/" + this.dataset.key).once("value").then(function(snapshot) {
+    trainRef.child(this.dataset.key).once("value").then(function(snapshot) {
       var data = snapshot.val();
       var form = $("#updateTrain")[0];
       form.trainName.value = data.name;
