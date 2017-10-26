@@ -1,5 +1,51 @@
-$(document).ready(function() {
+function addToTable(key, train) {
+  var row = $("<tr>").attr("id", key).attr("data-start", train.first);
+  var name = $("<th>").attr("scope", "row").text(train.name).attr("data-name", train.name);
+  var dest = $("<td>").text(train.destination).attr("data-dest", train.destination);
+  var freq = $("<td>").text(train.frequency).attr("data-fq", train.frequency);
+  var arrival = $("<td>");
+  var until = $("<td>");
+  var btns = $("<td>").addClass("btn-group").attr("role", "group");
+  var btnRmv = $("<button>").addClass("remove btn btn-secondary").attr("data-key", key).text("X");
+  var btnUpd = $("<button>").addClass("update btn btn-primary").attr("data-key", key).text("Update");
+  var next = arrivalTime(train.frequency, train.first);
 
+  arrival.text(next.format("h:mm A")).attr("data-next", next);
+  until.text(next.fromNow());
+
+  btns.append(btnUpd).append(btnRmv);
+  row.append(name).append(dest).append(freq).append(arrival).append(until).append(btns);
+  $("#timeTrains").append(row);
+}
+
+function updateTimes() {
+  var rows = $("#timeTrains").children();
+  for (var i = 0; i < rows.length; i++) {
+    var elements = $(rows[i]).children();
+    var arrival = $(elements[3]);
+    var until = $(elements[4]);
+    var freq = parseInt(elements[2].dataset.fq);
+    var arrive = moment(elements[3].dataset.next, "x");
+
+    while (arrive.isBefore(moment())) {
+      arrive.add(freq, 'minutes');
+    }
+    arrival.text(arrive.format("h:mm A")).attr("data-next", arrive);
+    until.text(arrive.fromNow());
+  }
+}
+
+function arrivalTime(freq, first, format = "HH:mm") {
+	var arrive = moment(first, format);
+	if (arrive.isBefore(moment())) {
+		var diff = moment().diff(moment(arrive), "minutes");
+		var till = freq - (diff % freq);
+		arrive = moment().add(till, "minutes");
+	}
+	return arrive;
+}
+
+$(document).ready(function initialize() {
   // Initialize Firebase
   var config = {
     apiKey: "AIzaSyDUtsL3aGb_X7m5fyueXRSiJJeR_XgDEQg",
@@ -23,21 +69,16 @@ $(document).ready(function() {
 
   trainRef.on("child_changed", function changeTrain(snapshot) {
     console.log(snapshot.val());
-    //TODO: Update row by key
     var elements = $("#" + snapshot.key).children();
     $(elements[0]).text(snapshot.val().name).attr("data-name", snapshot.val().name);
     $(elements[1]).text(snapshot.val().destination).attr("data-dest", snapshot.val().destination);
     $(elements[2]).text(snapshot.val().frequency).attr("data-fq", snapshot.val().frequency);
     var arrival = elements[3];
     var until = elements[4];
+		var next = arrivalTime(snapshot.val().frequency, snapshot.val().first)
 
-    var first = moment(snapshot.val().first, "HH:mm");
-    while (first.isBefore(moment())) {
-      first.add(snapshot.val().frequency, 'minutes');
-    }
-
-    $(elements[3]).text(first.format("h:mm A")).attr("data-next", first);
-    $(elements[4]).text(first.fromNow());
+    $(elements[3]).text(next.format("h:mm A")).attr("data-next", next);
+    $(elements[4]).text(next.fromNow());
 
   }, function(errorObject) {
     console.log("Errors handled: " + errorObject.code);
@@ -89,46 +130,6 @@ $(document).ready(function() {
     });
   });
 
-  setInterval(updateTimes, 60000);
-
-  function addToTable(key, train) {
-    var row = $("<tr>").attr("id", key).attr("data-start", train.first);
-    var name = $("<th>").attr("scope", "row").text(train.name).attr("data-name", train.name);
-    var dest = $("<td>").text(train.destination).attr("data-dest", train.destination);
-    var freq = $("<td>").text(train.frequency).attr("data-fq", train.frequency);
-    var arrival = $("<td>");
-    var until = $("<td>");
-    var btns = $("<td>").addClass("btn-group").attr("role", "group");
-    var btnRmv = $("<button>").addClass("remove btn btn-secondary").attr("data-key", key).text("X");
-    var btnUpd = $("<button>").addClass("update btn btn-primary").attr("data-key", key).text("Update");
-    var first = moment(train.first, "HH:mm");
-
-    while (first.isBefore(moment())) {
-      first.add(train.frequency, 'minutes');
-    }
-    arrival.text(first.format("h:mm A")).attr("data-next", first);
-    until.text(first.fromNow());
-
-    btns.append(btnUpd).append(btnRmv);
-    row.append(name).append(dest).append(freq).append(arrival).append(until).append(btns);
-    $("#timeTrains").append(row);
-  }
-
-  function updateTimes() {
-    var rows = $("#timeTrains").children();
-    for (var i = 0; i < rows.length; i++) {
-      var elements = $(rows[i]).children();
-      var arrival = $(elements[3]);
-      var until = $(elements[4]);
-      var freq = parseInt(elements[2].dataset.fq);
-      var arrive = moment(elements[3].dataset.next, "x");
-
-      while (arrive.isBefore(moment())) {
-        arrive.add(freq, 'minutes');
-      }
-      arrival.text(arrive.format("h:mm A")).attr("data-next", arrive);
-      until.text(arrive.fromNow());
-    }
-  }
+  var update = setInterval(updateTimes, 60000);
 
 });

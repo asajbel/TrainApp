@@ -1,0 +1,9 @@
+body {
+	min-width: 700px;
+}
+
+@media screen and (max-width: 768px) {
+	.container {
+		max-width: 720px;
+	}
+}
