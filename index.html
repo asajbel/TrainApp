@@ -2,7 +2,9 @@
 <html>
 
 <head>
-  <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="Train Time allows users to input information on a train and store it to a database in order to get the arrival time."
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
   <title>Train Time</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
   <link rel="stylesheet" href="assets/css/style.css">
@@ -23,20 +25,20 @@
           <form id="updateTrain" name="updateTrain">
             <div class="form-group">
               <label for="trainName">Name</label>
-              <input type="text" class="form-control" id="trainName" name="trainName" placeholder="New Train Name">
+              <input type="text" class="form-control" id="trainName" name="trainName" placeholder="New Train Name" required>
             </div>
             <div class="form-group">
               <label for="trainDest">Destination</label>
-              <input type="text" class="form-control" id="trainDest" name="trainDest" placeholder="New Train Destination">
+              <input type="text" class="form-control" id="trainDest" name="trainDest" placeholder="New Train Destination" required>
             </div>
             <div class="form-group">
               <label for="trainTime">First Start Time</label>
-              <input type="time" class="form-control" id="trainTime" name="trainTime" placeholder="HH:MM">
+              <input type="time" class="form-control" id="trainTime" name="trainTime" placeholder="HH:MM" required>
               <small id="timeHelp" class="form-text text-muted"></small>
             </div>
             <div class="form-group">
               <label for="trainFreq">Frequency (min)</label>
-              <input type="number" class="form-control" id="trainFreq" name="trainFreq" placeholder="Minutes">
+              <input type="number" class="form-control" id="trainFreq" name="trainFreq" placeholder="Minutes" required>
             </div>
           </form>
         </div>
