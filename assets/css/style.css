@@ -1,0 +1,20 @@
+.btn-sign {
+	position: relative;
+	float: right;
+	width: 150px;
+}
+
+.jumbotron {
+	padding-top: 2rem;
+	padding-bottom: 2rem;
+}
+
+body {
+	min-width: 700px;
+}
+
+@media screen and (max-width: 768px) {
+	.container {
+		max-width: 720px;
+	}
+}
